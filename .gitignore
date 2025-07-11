@@ -1,0 +1,13 @@
+node_modules
+
+scripts
+
+mocks.*
+
+pnpm-lock.yaml
+
+/.cache
+/build
+
+.vscode
+.env
