@@ -1,5 +1,7 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { createCookie } from '@remix-run/node';
+import { RoleManager } from '@shared/role-manager';
+import type { AppUser } from '@shared/types';
 
 export const sessionCookie = createCookie('ltiaas_session', {
     httpOnly: true,
@@ -26,11 +28,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
         return Response.json({ error: 'Missing ltik' }, { status: 400 });
     }
 
+    const headerLtiaas = {
+        Authorization: `LTIK-AUTH-V2 ${API_KEY}:${ltik}`,
+    };
+
     const res = await fetch('https://test-leaningobjt.ltiaas.com/api/idtoken', {
-        headers: {
-            // biome-ignore lint/style/useNamingConvention: <LTIK-AUTH-V2 is the required format>
-            Authorization: `LTIK-AUTH-V2 ${API_KEY}:${ltik}`,
-        },
+        headers: headerLtiaas,
     });
 
     if (!res.ok) {
@@ -39,9 +42,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
         return Response.json({ error: 'Failed to fetch ID token', details: err }, { status: res.status });
     }
 
-    const data = await res.json();
+    const idToken = await res.json();
 
-    return Response.json({
-        user: data.user,
-    });
+    const moodleUser = idToken.user;
+
+    const user: AppUser = {
+        id: moodleUser.id,
+        email: moodleUser.email,
+        name: moodleUser.name,
+        givenName: moodleUser.given_name,
+        role: RoleManager.getAppRolesFromLtiRoles(moodleUser.roles),
+    };
+
+    console.log('User:', user);
+
+    return idToken.user;
 }

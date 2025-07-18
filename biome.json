@@ -138,7 +138,7 @@
                                 "selector": {
                                     "kind": "enum"
                                 },
-                                "formats": ["PascalCase"]
+                                "formats": ["CONSTANT_CASE"]
                             },
                             {
                                 "selector": {
@@ -174,7 +174,7 @@
                                 "selector": {
                                     "kind": "objectLiteralProperty"
                                 },
-                                "formats": ["camelCase"]
+                                "formats": ["camelCase", "PascalCase", "CONSTANT_CASE"]
                             },
                             {
                                 "selector": {
