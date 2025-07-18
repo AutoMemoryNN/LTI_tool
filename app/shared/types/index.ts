@@ -16,3 +16,10 @@ export type CourseLaunchData = {
     returnUrl: string;
     membershipsUrl: string;
 };
+
+export type CookieData = {
+    userId: string;
+    userEmail: string;
+    userName: string;
+    userGivenName?: string;
+};
