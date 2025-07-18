@@ -5,5 +5,14 @@ export interface AppUser {
     email: string;
     name: string;
     givenName?: string;
-    role: AppRole[];
+    roles: AppRole[];
 }
+
+export type CourseLaunchData = {
+    courseId: string;
+    courseName: string;
+    courseType: string;
+    resourceName: string;
+    returnUrl: string;
+    membershipsUrl: string;
+};

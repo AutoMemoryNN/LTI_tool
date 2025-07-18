@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { createCookie } from '@remix-run/node';
 import { RoleManager } from '@shared/role-manager';
-import type { AppUser } from '@shared/types';
+import type { AppUser, CourseLaunchData } from '@shared/types';
 
 export const sessionCookie = createCookie('ltiaas_session', {
     httpOnly: true,
@@ -51,10 +51,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
         email: moodleUser.email,
         name: moodleUser.name,
         givenName: moodleUser.given_name,
-        role: RoleManager.getAppRolesFromLtiRoles(moodleUser.roles),
+        roles: RoleManager.getAppRolesFromLtiRoles(moodleUser.roles),
+    };
+
+    const courseLaunch: CourseLaunchData = {
+        courseId: idToken.launch.context.id,
+        courseName: idToken.launch.context.title,
+        courseType: idToken.launch.context.type[0],
+        resourceName: idToken.launch.resource.title,
+        returnUrl: idToken.launch.presentation.returnUrl,
+        membershipsUrl: idToken.launch.custom.context_memberships_url,
     };
 
     console.log('User:', user);
 
-    return idToken.user;
+    return { user, courseLaunch };
 }
