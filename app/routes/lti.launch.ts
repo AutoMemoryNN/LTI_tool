@@ -1,8 +1,7 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { redirect } from '@remix-run/node';
-import { RoleManager } from '@shared/role-manager';
+import { RoleManager } from '@services/role-service';
 import type { AppUser, CookieData, CourseLaunchData } from '@shared/types';
-
 import { sessionCookie } from '@utils/cookie.server';
 import { jwtManager } from '@utils/jwt.server';
 

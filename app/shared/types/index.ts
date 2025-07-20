@@ -1,4 +1,4 @@
-import type { AppRole } from '@shared/role-manager';
+import type { AppRole } from '@services/role-service';
 
 export interface AppUser {
     id: string;

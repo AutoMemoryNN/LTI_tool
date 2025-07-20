@@ -5,11 +5,10 @@ import type { loader } from './loader';
 export { loader } from './loader';
 
 export default function AppLayout() {
-    const userData = useLoaderData<typeof loader>();
-    console.log('UserContext:', UserContext);
-    console.log('userData:', userData);
+    const { session } = useLoaderData<typeof loader>();
+
     return (
-        <UserContext.Provider value={userData.session}>
+        <UserContext.Provider value={session}>
             <div className='min-h-screen bg-gray-50'>
                 <Outlet />
             </div>
