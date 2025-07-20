@@ -1,15 +1,10 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
-import { createCookie } from '@remix-run/node';
+import { redirect } from '@remix-run/node';
 import { RoleManager } from '@shared/role-manager';
-import type { AppUser, CourseLaunchData } from '@shared/types';
+import type { AppUser, CookieData, CourseLaunchData } from '@shared/types';
 
-export const sessionCookie = createCookie('ltiaas_session', {
-    httpOnly: true,
-    sameSite: 'lax',
-    path: '/',
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 3600,
-});
+import { sessionCookie } from '@utils/cookie.server';
+import { jwtManager } from '@utils/jwt.server';
 
 export async function loader({ request }: LoaderFunctionArgs) {
     const API_KEY = process.env.API_KEY_LTIAAS;
@@ -54,7 +49,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         roles: RoleManager.getAppRolesFromLtiRoles(moodleUser.roles),
     };
 
-    const courseLaunch: CourseLaunchData = {
+    const _courseLaunch: CourseLaunchData = {
         courseId: idToken.launch.context.id,
         courseName: idToken.launch.context.title,
         courseType: idToken.launch.context.type[0],
@@ -63,7 +58,30 @@ export async function loader({ request }: LoaderFunctionArgs) {
         membershipsUrl: idToken.launch.custom.context_memberships_url,
     };
 
-    console.log('User:', user);
+    const COOKIE_NAME = process.env.COOKIE_NAME;
+    if (!COOKIE_NAME) {
+        throw new Error('COOKIE_NAME is not defined in environment variables');
+    }
 
-    return { user, courseLaunch };
+    const cookieData: CookieData = {
+        userId: user.id,
+        userEmail: user.email,
+        userName: user.name,
+        userGivenName: user.givenName,
+    };
+
+    const jwtToken = await jwtManager.sign(cookieData);
+
+    const cookieObject = {
+        [COOKIE_NAME]: jwtToken,
+    };
+
+    console.log('Cookie data with JWT:', cookieObject);
+
+    return redirect('/home', {
+        status: 302,
+        headers: {
+            'Set-Cookie': await sessionCookie.serialize(cookieObject),
+        },
+    });
 }
